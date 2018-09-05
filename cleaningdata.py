@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import string
+from time import strftime
+from datetime import datetime
 
 def standarddeviation():
     Location ="datasets/gradedata.csv"
@@ -67,7 +70,89 @@ def filteringvalues():
     df.loc[(df['Grades'] >= 100,'Grades')]=100
     print(df)
 
+def findingDuplicateRows():
+    names =['Jan','John','Bob','Jan','Mary','Jon','Mel','Mel']
+    grades = [95,78,76,95,77,78,99,100]
+    GradeList = list(zip(names,grades))
+    df = pd.DataFrame(data = GradeList,
+                      columns=['Names','Grades'])
+    print(df)
+    #print only the duplicate rows
+    print(df.duplicated())
+    #print df without the duplicate rows
+    print(df.drop_duplicates())
 
-standarddeviation();
-interquartileRange();
-filteringvalues()
+exclude = set(string.punctuation)
+def remove_punctuation(x):
+    try:
+        x = ''.join(ch for ch in x if ch not in exclude)
+    except:
+        pass
+    return x
+
+def remove_whitespace(x):
+    try:
+        x = ''.join(x.split())
+    except:
+        pass
+    return x
+
+
+
+
+def removePunctuationFromColumncontent():
+    Location = "datasets/gradedata.csv"
+    ## to add headers as we load the data...
+    df = pd.read_csv(Location)
+    print(df.head())
+    df.address = df.address.apply(remove_punctuation)
+    print(df)
+    df.address = df.address.apply(remove_whitespace)
+    print(df)
+
+def standardize_date(thedate):
+    formatted_date =""
+    thedate = str(thedate)
+    if not thedate or thedate.lower() =="missing" or thedate == "nan":
+        formatted_date = "MISSING"
+    if thedate.lower().find('x') != -1:
+        formatted_date="Incomplete"
+    if thedate[0:2] == "00":
+        formatted_date = thedate.replace('00','19')
+    try:
+        formatted_date = str(datetime.strptime(thedate,'%m/%d/%y').strftime('%m/%d/%y'))
+    except:
+        pass
+    try:
+        formatted_date= str(datetime.strptime(thedate,'%m/%d/%y'))
+    except:
+        pass
+    try:
+        if int(thedate[0:4]) < 1900:
+            formatted_date = 'Incomplete'
+        else:
+            formatted_date = str(datetime.strptime(thedate,'%Y-%m-%d').strftime('%m/%d/%y'))
+    except:
+        pass
+    return formatted_date;
+
+def standard_date():
+    names =['Bob','Jessica','Mary','John','Mel']
+    grades = [76,99,77,78,99]
+    bsdegrees = [1,1,0,0,1]
+    msdegrees = [2,1,0,0,0]
+    phddegrees = [0,1,0,0,0]
+    bdates = ['1/1/1945','10/21/76','3/3/90','04/30/1901','1963-09-01']
+    GradeList = list(zip(names,grades,bsdegrees,msdegrees,phddegrees,bdates))
+    columns= ['Names','Grades','BS','MS','PhD','bdates']
+    df = pd.DataFrame(data = GradeList,columns=columns)
+    print(df)
+    df.bdates = df.bdates.apply(standardize_date)
+    print(df)
+
+#standarddeviation();
+#interquartileRange();
+#filteringvalues();
+#findingDuplicateRows();
+#removePunctuationFromColumncontent();
+standard_date();
